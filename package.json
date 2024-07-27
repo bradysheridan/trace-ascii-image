@@ -1,0 +1,12 @@
+{
+  "name": "trace-ascii-image",
+  "version": "1.0.0",
+  "description": "Trace an image into a plain text sketch in the style of ASCII art",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brady Sheridan",
+  "license": "ISC"
+}
