@@ -9,8 +9,6 @@ Developed in tandem with [ascii-animator.com](https://ascii-animator.com)
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 <!-- CONTACT -->
 ## Contact
 
