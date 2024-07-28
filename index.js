@@ -14,7 +14,7 @@ const sobel_h = [
 // https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
 const sRGBToLin = (colorChannel) => (colorChannel <= 0.04045) ? colorChannel / 12.92 : Math.pow(((colorChannel + 0.055)/1.055),2.4);
 const YToLstar = (Y) => (Y <= (216/24389)) ? Y * (24389/27) : Math.pow(Y,(1/3)) * 116 - 16;
-const pxLuminocityWeightedAverage = (r, g, b) => 0.3*r + 0.59*g + 0.11*b;
+const pxluminosityWeightedAverage = (r, g, b) => 0.3*r + 0.59*g + 0.11*b;
 const pxRGBAverage = (r, g, b) => (r+b+g)/3;
 const pxLuminance = (r, g, b) => {
   let vR = r / 255;
@@ -62,7 +62,7 @@ function createPixelMap({
 
   // create greyscale map, calculating
   //  - rgb avergae
-  //  - weighted luminocity
+  //  - weighted luminosity
   //  - perceived lightness
   {
     let i = 0;
@@ -73,10 +73,10 @@ function createPixelMap({
       let g = imageData[i + 1];
       let r = imageData[i];
 
-      // calculate rgb avg, weighted luminocity and perceived lightness
+      // calculate rgb avg, weighted luminosity and perceived lightness
       pixels[i * 0.25] = {
         rgbAverage: pxRGBAverage(r, g, b),
-        luminocity: pxLuminocityWeightedAverage(r, g, b),
+        luminosity: pxluminosityWeightedAverage(r, g, b),
         perceivedLightness: pxPerceivedLightness(r, g, b)
       }
 
@@ -85,7 +85,7 @@ function createPixelMap({
   }
 
   // detect edges, calculating
-  //  - edge gradient magnitude (luminocity-based)
+  //  - edge gradient magnitude (luminosity-based)
   //  - edge gradient angle (0° - 180°)
   for (let i = 0; i < pixels.length; i++) {
     let pixel = pixels[i];
@@ -96,10 +96,10 @@ function createPixelMap({
     for (let y = 0; y < 3; y++) {
       for (let x = 0; x < 3; x++) {
         let pixel = pixels[i + (width * y) + x];
-        let luminocity = pixel && pixel.luminocity ? pixel.luminocity : 0;
+        let luminosity = pixel && pixel.luminosity ? pixel.luminosity : 0;
         let kernelAccessor = (x) * 3 + (y);
-        hSum += luminocity * sobel_h[kernelAccessor];
-        vSum += luminocity * sobel_v[kernelAccessor];
+        hSum += luminosity * sobel_h[kernelAccessor];
+        vSum += luminosity * sobel_v[kernelAccessor];
       }
     }
       
@@ -154,7 +154,7 @@ export default function trace(image, config) {
     onPixel: (px) => {
       let {
         rgbAverage,
-        luminocity,
+        luminosity,
         perceivedLightness,
         gMagnitude,
         gAngle

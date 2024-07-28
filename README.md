@@ -14,4 +14,4 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Brady Sheridan - dev@bradysheridan.com - [bradysheridan.com](https://www.bradysheridan.com/) - [@brsheridan](https://instagram.com/brsheridan)
 
-Project Link: [https://github.com/bradysheridan/trace-ascii-image](https://github.com/bradysheridan/trace-ascii-image)
+Project Links: [Github](https://github.com/bradysheridan/trace-ascii-image) - [npm](https://www.npmjs.com/package/trace-ascii-image)
