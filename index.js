@@ -141,6 +141,11 @@ export default function trace(image, config) {
   // destination for pixel-wise operations during
   // greyscaling and sobel image traversal
   var asciiString = "";
+
+  var lightnessRange = [];
+
+  var lowestPerceivedLightness = 0;
+  var highestPerceivedLightness = 100;
   
   // construct ascii string
   createPixelMap({
@@ -155,12 +160,14 @@ export default function trace(image, config) {
         gAngle
       } = px;
 
+      if (!lightnessRange.includes(perceivedLightness))
+          lightnessRange.push(perceivedLightness);
+
       const edgeCharacter = config.edgeCharacter || "#";
-      const shadingRamp = config.shadingRamp || [' ','`','.',';','+','*'];
+      const shadingRamp = config.shadingRamp || ["*", "+", ";", ".", "`", ",", " "];
 
       const outline = () => edgeCharacter;
-      // const shade = () => perceivedLightness < 1 || perceivedLightness > 60 ? '-' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 80, 0, shadingRamp.length - 1))];
-      const shade = () => perceivedLightness < 1 || perceivedLightness > 75 ? ' ' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 75, 0, shadingRamp.length - 1))];
+      const shade = () => perceivedLightness > 80 ? ' ' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 100, 0, shadingRamp.length - 1))];
 
 
       let val = (config?.shouldTraceEdges && gMagnitude > config?.edgeDetectionThreshold) ? outline() : shade();
@@ -171,6 +178,12 @@ export default function trace(image, config) {
       asciiString += "\n";
     }
   });
+
+  lightnessRange.sort(function(a, b) {
+    return a - b;
+  });
+  
+  console.log("-> lightnessRange:", lightnessRange);
 
   return {
     asciiString: asciiString,
