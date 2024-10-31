@@ -67,6 +67,9 @@ function createPixelMap({
   {
     let i = 0;
 
+    // console.log("-> createPixelMap got imageData:", imageData);
+    // console.log("-> row imageData[40.1]:", imageData[10*4])
+
     while (i < imageData.length) {
       // let a = data[i - 1];
       let b = imageData[i + 2];
@@ -77,7 +80,8 @@ function createPixelMap({
       pixels[i * 0.25] = {
         rgbAverage: pxRGBAverage(r, g, b),
         luminosity: pxluminosityWeightedAverage(r, g, b),
-        perceivedLightness: pxPerceivedLightness(r, g, b)
+        perceivedLightness: pxPerceivedLightness(r, g, b),
+        rgb: [r,g,b]
       }
 
       i += 4;
@@ -117,6 +121,8 @@ function createPixelMap({
     onPixel(pixel);
   };
 
+  // console.log(pixels)
+
   return pixels;
 }
 
@@ -134,9 +140,9 @@ function createPixelMap({
  * @returns {number} result.height
  */
 export default function trace(image, config) {
-  console.log("image-to-ascii trace function got params", image);
-  console.log("-> image", image);
-  console.log("-> config", config);
+  // console.log("image-to-ascii trace function got params", image);
+  // console.log("-> image", image);
+  // console.log("-> config", config);
 
   // destination for pixel-wise operations during
   // greyscaling and sobel image traversal
@@ -153,6 +159,7 @@ export default function trace(image, config) {
     width: image.width,
     onPixel: (px) => {
       let {
+        rgb,
         rgbAverage,
         luminosity,
         perceivedLightness,
@@ -169,12 +176,12 @@ export default function trace(image, config) {
       const outline = () => edgeCharacter;
       const shade = () => perceivedLightness > 80 ? ' ' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 100, 0, shadingRamp.length - 1))];
 
-
       let val = (config?.shouldTraceEdges && gMagnitude > config?.edgeDetectionThreshold) ? outline() : shade();
 
       asciiString += val;
     },
     onNewLine: () => {
+      // console.log("new line");
       asciiString += "\n";
     }
   });
@@ -182,8 +189,6 @@ export default function trace(image, config) {
   lightnessRange.sort(function(a, b) {
     return a - b;
   });
-  
-  console.log("-> lightnessRange:", lightnessRange);
 
   return {
     asciiString: asciiString,
