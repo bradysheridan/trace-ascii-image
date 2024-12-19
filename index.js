@@ -67,9 +67,6 @@ function createPixelMap({
   {
     let i = 0;
 
-    // console.log("-> createPixelMap got imageData:", imageData);
-    // console.log("-> row imageData[40.1]:", imageData[10*4])
-
     while (i < imageData.length) {
       // let a = data[i - 1];
       let b = imageData[i + 2];
@@ -121,8 +118,6 @@ function createPixelMap({
     onPixel(pixel);
   };
 
-  // console.log(pixels)
-
   return pixels;
 }
 
@@ -140,19 +135,13 @@ function createPixelMap({
  * @returns {number} result.height
  */
 export default function trace(image, config) {
-  // console.log("image-to-ascii trace function got params", image);
-  // console.log("-> image", image);
-  // console.log("-> config", config);
+  const responseFields = config.responseFields || [];
 
-  // destination for pixel-wise operations during
-  // greyscaling and sobel image traversal
+  // destinations and cnotrol variables for pixel-wise operations during image traversal
   var asciiString = "";
+  var colorPixelMatrix = [];
+  let i = -1;
 
-  var lightnessRange = [];
-
-  var lowestPerceivedLightness = 0;
-  var highestPerceivedLightness = 100;
-  
   // construct ascii string
   createPixelMap({
     imageData: image.data,
@@ -167,32 +156,37 @@ export default function trace(image, config) {
         gAngle
       } = px;
 
-      if (!lightnessRange.includes(perceivedLightness))
-          lightnessRange.push(perceivedLightness);
+      // ascii string processing
+      if (responseFields.includes("asciiString")) {
+        const edgeCharacter = config.edgeCharacter || "#";
+        const shadingRamp = config.shadingRamp || ["*", "+", ";", ".", "`", ",", " "];
+        const outline = () => edgeCharacter;
+        const shade = () => perceivedLightness > 80 ? ' ' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 100, 0, shadingRamp.length - 1))];
+        const val = (config?.shouldTraceEdges && gMagnitude > config?.edgeDetectionThreshold) ? outline() : shade();
+        asciiString += val;
+      }
 
-      const edgeCharacter = config.edgeCharacter || "#";
-      const shadingRamp = config.shadingRamp || ["*", "+", ";", ".", "`", ",", " "];
-
-      const outline = () => edgeCharacter;
-      const shade = () => perceivedLightness > 80 ? ' ' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 100, 0, shadingRamp.length - 1))];
-
-      let val = (config?.shouldTraceEdges && gMagnitude > config?.edgeDetectionThreshold) ? outline() : shade();
-
-      asciiString += val;
+      // color pixel matrix processing
+      if (responseFields.includes("colorPixelMatrix")) {
+        colorPixelMatrix[i].push({ val: "*", rgb });
+      }
     },
     onNewLine: () => {
-      // console.log("new line");
-      asciiString += "\n";
+      i++;
+      
+      // color pixel matrix processing
+      if (responseFields.includes("colorPixelMatrix")) {
+        colorPixelMatrix.push([]);
+      }
     }
   });
 
-  lightnessRange.sort(function(a, b) {
-    return a - b;
-  });
+  var returnObject = {};
 
-  return {
-    asciiString: asciiString,
-    width: image.width,
-    height: image.height
-  }
+  if (responseFields.includes("asciiString"))
+    returnObject.asciiString = asciiString;
+  if (responseFields.includes("colorPixelMatrix"))
+    returnObject.colorPixelMatrix = colorPixelMatrix;
+
+  return returnObject;
 }
