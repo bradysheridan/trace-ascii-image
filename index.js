@@ -122,17 +122,17 @@ function createPixelMap({
 }
 
 /**
- * Traces the specified image into an ASCII sketch.
+ * Traces an image into its ASCII representation.
  * @param {object} image - Image config object
  * @param {Uint8ClampedArray} image.data - Image data (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)
  * @param {number} image.width - Source image width
  * @param {number} image.height - Source image height
- * @param {object} config - Trace config object
+ * @param {object} config
+ * @param {string[]} config.responseFields - Array of desired response fields. Possible values: ['asciiString', 'colorPixelMatrix'].
  * @param {boolean} config.shouldTraceEdges - If true, edges will be traced according to values specified.
  * @returns {object} result
- * @returns {string} result.asciiString
- * @returns {number} result.width
- * @returns {number} result.height
+ * @returns {string|undefined} result.asciiString - Large string containing ASCII version of the source image. Newline chars ('\n') represent the end of a row of pixels. Each character represents a pixel. Only returned if specified in config.responseFields.
+ * @returns {string|undefined} result.pixelColorMatrix - 2D matrix containing ASCII version of the soource image. Dimension one represents row of pixels. Dimension two contains pixel's RGB values. Only returned if specified in config.responseFields.
  */
 export default function trace(image, config) {
   const responseFields = config.responseFields || [];
