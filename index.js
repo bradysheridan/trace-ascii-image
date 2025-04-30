@@ -156,19 +156,21 @@ export default function trace(image, config) {
         gAngle
       } = px;
 
+      // get char val
+      const edgeCharacter = config.edgeCharacter || "#";
+      const shadingRamp = config.shadingRamp || ["*", "+", ";", ".", "`", ",", " "];
+      const outline = () => edgeCharacter;
+      const shade = () => perceivedLightness > 80 ? ' ' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 100, 0, shadingRamp.length - 1))];
+      const val = (config?.shouldTraceEdges && gMagnitude > config?.edgeDetectionThreshold) ? outline() : shade();
+
       // ascii string processing
       if (responseFields.includes("asciiString")) {
-        const edgeCharacter = config.edgeCharacter || "#";
-        const shadingRamp = config.shadingRamp || ["*", "+", ";", ".", "`", ",", " "];
-        const outline = () => edgeCharacter;
-        const shade = () => perceivedLightness > 80 ? ' ' : shadingRamp[Math.floor(remap(perceivedLightness, 0, 100, 0, shadingRamp.length - 1))];
-        const val = (config?.shouldTraceEdges && gMagnitude > config?.edgeDetectionThreshold) ? outline() : shade();
         asciiString += val;
       }
 
       // color pixel matrix processing
       if (responseFields.includes("colorPixelMatrix")) {
-        colorPixelMatrix[i].push({ val: "*", rgb });
+        colorPixelMatrix[i].push({ val, rgb });
       }
     },
     onNewLine: () => {
